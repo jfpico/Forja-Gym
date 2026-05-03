@@ -1,0 +1,19 @@
+{
+  "name": "Forja Gym",
+  "short_name": "Forja",
+  "description": "Control de rutinas, ejercicios, series y progreso del gimnasio.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f8f7f1",
+  "theme_color": "#202626",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

@@ -1,0 +1,249 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#202626" />
+    <meta name="description" content="App personal para controlar rutinas, series, ejercicios y progreso del gimnasio." />
+    <title>Forja Gym</title>
+    <link rel="manifest" href="manifest.webmanifest" />
+    <link rel="icon" href="icons/icon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="icons/icon.svg" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="shell">
+      <aside class="sidebar" aria-label="Navegacion principal">
+        <div class="brand">
+          <div class="brand-mark" aria-hidden="true">
+            <svg viewBox="0 0 48 48" role="img">
+              <path d="M7 26h5v-4H7v4Zm7 5h5V17h-5v14Zm20 0h-5V17h5v14Zm2-5h5v-4h-5v4ZM20 26h8v-4h-8v4Z" />
+              <path d="M6 34c5 5 12 8 18 8s13-3 18-8" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" />
+            </svg>
+          </div>
+          <div>
+            <p>Forja</p>
+            <span>control de gym</span>
+          </div>
+        </div>
+
+        <nav class="nav-tabs" aria-label="Vistas">
+          <button class="nav-tab active" data-view="today">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 2v4M16 2v4M3 10h18M5 4h14a2 2 0 0 1 2 2v13a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Z" /></svg>
+            Hoy
+          </button>
+          <button class="nav-tab" data-view="plan">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16M4 12h16M4 19h10" /></svg>
+            Plan
+          </button>
+          <button class="nav-tab" data-view="library">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19.5V5a2 2 0 0 1 2-2h12v18H6a2 2 0 0 1-2-1.5ZM8 7h6M8 11h6" /></svg>
+            Ejercicios
+          </button>
+          <button class="nav-tab" data-view="progress">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19V5M4 19h16M8 16v-5M13 16V8M18 16v-9" /></svg>
+            Progreso
+          </button>
+        </nav>
+
+        <section class="mini-panel">
+          <span class="eyebrow">racha</span>
+          <strong id="streakCount">0 dias</strong>
+          <p id="streakText">Registra tu primer entreno y empieza la cadena.</p>
+        </section>
+      </aside>
+
+      <section class="workspace">
+        <header class="topbar">
+          <div>
+            <span class="eyebrow" id="todayLabel"></span>
+            <h1 id="viewTitle">Entreno de hoy</h1>
+          </div>
+          <div class="top-actions">
+            <button class="icon-button" id="exportBtn" title="Exportar datos" aria-label="Exportar datos">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5M5 21h14" /></svg>
+            </button>
+            <button class="primary-button" id="finishWorkoutBtn">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 4 4L19 6" /></svg>
+              Cerrar entreno
+            </button>
+          </div>
+        </header>
+
+        <section class="view active" id="todayView">
+          <div class="hero-strip">
+            <div class="hero-copy">
+              <span class="eyebrow">sesion inteligente</span>
+              <h2 id="workoutName">Empuje limpio</h2>
+              <p id="coachLine">Calienta con calma, registra cada serie y deja que el progreso mande.</p>
+            </div>
+            <div class="body-map" aria-label="Mapa muscular trabajado">
+              <svg viewBox="0 0 220 220" role="img">
+                <defs>
+                  <linearGradient id="muscleHot" x1="0" x2="1" y1="0" y2="1">
+                    <stop offset="0%" stop-color="#f45d48" />
+                    <stop offset="100%" stop-color="#ffc857" />
+                  </linearGradient>
+                </defs>
+                <circle cx="110" cy="34" r="17" class="body-neutral" />
+                <path d="M82 67c10-10 46-10 56 0l-8 58H90L82 67Z" class="body-neutral" />
+                <path d="M75 74 48 104l13 13 26-27Z" class="body-neutral muscle chest" />
+                <path d="M145 74l27 30-13 13-26-27Z" class="body-neutral muscle shoulders" />
+                <path d="M93 130h15l-8 58H82Z" class="body-neutral muscle legs" />
+                <path d="M112 130h15l11 58h-18Z" class="body-neutral muscle legs" />
+                <path d="M91 75h38l-6 43H97Z" class="body-neutral muscle chest" />
+              </svg>
+            </div>
+          </div>
+
+          <div class="metrics-grid">
+            <article class="metric">
+              <span>Volumen</span>
+              <strong id="metricVolume">0 kg</strong>
+            </article>
+            <article class="metric">
+              <span>Series</span>
+              <strong id="metricSets">0</strong>
+            </article>
+            <article class="metric">
+              <span>Tiempo</span>
+              <strong id="metricTime">45 min</strong>
+            </article>
+            <article class="metric">
+              <span>Objetivo</span>
+              <strong id="metricGoal">Fuerza</strong>
+            </article>
+          </div>
+
+          <div class="content-grid">
+            <section class="panel workout-panel">
+              <div class="panel-head">
+                <div>
+                  <span class="eyebrow">agenda</span>
+                  <h3>Rutina activa</h3>
+                </div>
+                <button class="ghost-button" id="addExerciseBtn">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14" /></svg>
+                  Ejercicio
+                </button>
+              </div>
+              <div id="exerciseList" class="exercise-list"></div>
+            </section>
+
+            <section class="panel timer-panel">
+              <div class="panel-head">
+                <div>
+                  <span class="eyebrow">descanso</span>
+                  <h3>Temporizador</h3>
+                </div>
+                <select id="timerPreset" aria-label="Duracion del descanso">
+                  <option value="60">1:00</option>
+                  <option value="90" selected>1:30</option>
+                  <option value="120">2:00</option>
+                  <option value="180">3:00</option>
+                </select>
+              </div>
+              <div class="timer-face">
+                <svg viewBox="0 0 140 140" aria-hidden="true">
+                  <circle cx="70" cy="70" r="58" class="timer-track" />
+                  <circle cx="70" cy="70" r="58" class="timer-progress" id="timerRing" />
+                </svg>
+                <strong id="timerDisplay">01:30</strong>
+              </div>
+              <div class="timer-actions">
+                <button class="primary-button" id="timerStart">Iniciar</button>
+                <button class="ghost-button" id="timerReset">Reset</button>
+              </div>
+              <div class="readiness">
+                <label for="energyRange">Energia</label>
+                <input id="energyRange" type="range" min="1" max="5" value="4" />
+                <p id="energyText">Buen dia para apretar, sin perder tecnica.</p>
+              </div>
+            </section>
+          </div>
+        </section>
+
+        <section class="view" id="planView">
+          <div class="panel">
+            <div class="panel-head">
+              <div>
+                <span class="eyebrow">semana</span>
+                <h3>Plan de entreno</h3>
+              </div>
+              <button class="ghost-button" id="resetWeekBtn">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7M3 4v6h6" /></svg>
+                Restaurar
+              </button>
+            </div>
+            <div class="week-grid" id="weekGrid"></div>
+          </div>
+        </section>
+
+        <section class="view" id="libraryView">
+          <div class="panel">
+            <div class="panel-head">
+              <div>
+                <span class="eyebrow">catalogo</span>
+                <h3>Biblioteca de ejercicios</h3>
+              </div>
+              <form class="quick-add" id="newExerciseForm">
+                <input id="newExerciseName" type="text" placeholder="Nuevo ejercicio" required />
+                <select id="newExerciseMuscle" aria-label="Grupo muscular">
+                  <option>Pecho</option>
+                  <option>Espalda</option>
+                  <option>Pierna</option>
+                  <option>Hombro</option>
+                  <option>Brazo</option>
+                  <option>Core</option>
+                </select>
+                <button class="primary-button" type="submit">Anadir</button>
+              </form>
+            </div>
+            <div class="filter-row" id="muscleFilters"></div>
+            <div class="library-grid" id="libraryGrid"></div>
+          </div>
+        </section>
+
+        <section class="view" id="progressView">
+          <div class="content-grid progress-layout">
+            <section class="panel">
+              <div class="panel-head">
+                <div>
+                  <span class="eyebrow">tendencia</span>
+                  <h3>Volumen semanal</h3>
+                </div>
+              </div>
+              <canvas id="volumeChart" width="760" height="360" aria-label="Grafica de volumen"></canvas>
+            </section>
+            <section class="panel">
+              <div class="panel-head">
+                <div>
+                  <span class="eyebrow">records</span>
+                  <h3>Mejores marcas</h3>
+                </div>
+              </div>
+              <div id="recordsList" class="records-list"></div>
+            </section>
+          </div>
+        </section>
+      </section>
+    </main>
+
+    <dialog id="exerciseDialog">
+      <form method="dialog" class="dialog-card">
+        <div class="panel-head">
+          <div>
+            <span class="eyebrow">rutina activa</span>
+            <h3>Anadir ejercicio</h3>
+          </div>
+          <button class="icon-button" value="cancel" aria-label="Cerrar">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12" /></svg>
+          </button>
+        </div>
+        <div id="dialogExerciseList" class="dialog-list"></div>
+      </form>
+    </dialog>
+
+    <script src="app.js"></script>
+  </body>
+</html>
