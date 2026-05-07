@@ -122,10 +122,7 @@
                   <span class="eyebrow">agenda</span>
                   <h3>Rutina activa</h3>
                 </div>
-                <button class="ghost-button" id="addExerciseBtn">
-                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14" /></svg>
-                  Ejercicio
-                </button>
+                <span class="eyebrow">según plan</span>
               </div>
               <div id="exerciseList" class="exercise-list"></div>
             </section>
@@ -229,19 +226,20 @@
       </section>
     </main>
 
-    <dialog id="exerciseDialog">
-      <form method="dialog" class="dialog-card">
-        <div class="panel-head">
+    <!-- Dialog: añadir ejercicios al plan de un día -->
+    <dialog id="planDialog">
+      <div class="plan-dialog-card">
+        <div class="plan-dialog-header">
           <div>
-            <span class="eyebrow">rutina activa</span>
-            <h3>Anadir ejercicio</h3>
+            <span class="eyebrow">plan semanal</span>
+            <h3 id="planDayTitle">Lunes</h3>
           </div>
-          <button class="icon-button" value="cancel" aria-label="Cerrar">
+          <button class="icon-button" id="planDialogClose" aria-label="Cerrar">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12" /></svg>
           </button>
         </div>
-        <div id="dialogExerciseList" class="dialog-list"></div>
-      </form>
+        <div class="plan-dialog-body" id="planPickList"></div>
+      </div>
     </dialog>
 
     <script src="app.js"></script>
