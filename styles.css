@@ -51,6 +51,7 @@ svg {
   min-height: 100vh;
 }
 
+/* ── Sidebar ─────────────────────────────────────── */
 .sidebar {
   position: sticky;
   top: 0;
@@ -77,6 +78,8 @@ svg {
   border: 1px solid rgba(255, 255, 255, 0.18);
   background: #f6f4ea;
   color: var(--coal);
+  border-radius: 10px;
+  flex-shrink: 0;
 }
 
 .brand-mark svg {
@@ -110,7 +113,7 @@ svg {
 
 .nav-tabs {
   display: grid;
-  gap: 8px;
+  gap: 4px;
 }
 
 .nav-tab,
@@ -133,6 +136,7 @@ svg {
   padding: 0 14px;
   background: transparent;
   color: rgba(246, 244, 234, 0.72);
+  transition: background 0.15s, color 0.15s;
 }
 
 .nav-tab:hover,
@@ -175,6 +179,7 @@ svg {
   line-height: 1.45;
 }
 
+/* ── Workspace ───────────────────────────────────── */
 .workspace {
   min-width: 0;
   padding: 28px;
@@ -188,10 +193,7 @@ svg {
   margin-bottom: 22px;
 }
 
-h1,
-h2,
-h3,
-p {
+h1, h2, h3, p {
   margin-top: 0;
 }
 
@@ -220,17 +222,27 @@ h3 {
   justify-content: flex-end;
 }
 
+/* ── Buttons ─────────────────────────────────────── */
 .primary-button {
   padding: 0 16px;
   background: var(--green);
   color: #fff;
+  transition: background 0.15s;
 }
+.primary-button:hover { background: #1a8564; }
 
 .ghost-button {
   padding: 0 14px;
   border: 1px solid var(--line);
   background: #fff;
   color: var(--ink);
+  transition: border-color 0.15s, background 0.15s;
+}
+.ghost-button:hover { border-color: var(--ink); }
+
+.ghost-button.active-session-btn {
+  border-color: var(--green);
+  color: var(--green);
 }
 
 .icon-button {
@@ -239,16 +251,30 @@ h3 {
   border: 1px solid var(--line);
   background: #fff;
   color: var(--ink);
+  transition: border-color 0.15s, color 0.15s;
+}
+.icon-button:hover { border-color: var(--ink); }
+
+/* Danger variant — quitar/eliminar */
+.danger-btn {
+  color: var(--muted);
+  border-color: var(--line);
+}
+.danger-btn:hover {
+  color: var(--red);
+  border-color: var(--red);
+  background: rgba(244, 93, 72, 0.06);
 }
 
+/* ── Views ───────────────────────────────────────── */
 .view {
   display: none;
 }
-
 .view.active {
   display: block;
 }
 
+/* ── Hero ────────────────────────────────────────── */
 .hero-strip,
 .panel,
 .metric {
@@ -305,6 +331,7 @@ h3 {
   stroke: #b74436;
 }
 
+/* ── Metrics ─────────────────────────────────────── */
 .metrics-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -329,6 +356,7 @@ h3 {
   font-size: clamp(1.45rem, 2vw, 2.05rem);
 }
 
+/* ── Content grid ────────────────────────────────── */
 .content-grid {
   display: grid;
   grid-template-columns: minmax(0, 1.5fr) minmax(300px, 0.7fr);
@@ -347,6 +375,7 @@ h3 {
   margin-bottom: 18px;
 }
 
+/* ── Exercise list ───────────────────────────────── */
 .exercise-list,
 .dialog-list,
 .records-list,
@@ -361,7 +390,9 @@ h3 {
   border-radius: 8px;
   background: #fff;
   overflow: hidden;
+  transition: box-shadow 0.15s;
 }
+.exercise-card:hover { box-shadow: 0 4px 18px rgba(22, 24, 23, 0.08); }
 
 .exercise-top {
   display: flex;
@@ -370,6 +401,19 @@ h3 {
   gap: 12px;
   padding: 14px;
   background: #f3f5f0;
+}
+
+.exercise-top-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+/* Smaller icon button inside exercise card */
+.exercise-top-actions .icon-button {
+  width: 36px;
+  min-height: 36px;
 }
 
 .exercise-title {
@@ -391,6 +435,7 @@ h3 {
   font-weight: 700;
 }
 
+/* ── Set table ───────────────────────────────────── */
 .set-table {
   width: 100%;
   border-collapse: collapse;
@@ -418,6 +463,14 @@ h3 {
   padding: 0 8px;
 }
 
+/* Completed set row */
+.set-done td {
+  opacity: 0.55;
+}
+.set-done input:not([type="checkbox"]) {
+  background: #f0f4f0;
+}
+
 .row-button {
   width: 34px;
   height: 34px;
@@ -425,8 +478,15 @@ h3 {
   background: #fff;
   border-radius: 6px;
   font-weight: 900;
+  color: var(--muted);
+  transition: color 0.15s, border-color 0.15s;
+}
+.row-button:hover {
+  color: var(--red);
+  border-color: var(--red);
 }
 
+/* ── Timer ───────────────────────────────────────── */
 .timer-panel {
   align-self: start;
 }
@@ -473,6 +533,7 @@ input {
   stroke-linecap: round;
   stroke-dasharray: 364;
   stroke-dashoffset: 0;
+  transition: stroke-dashoffset 0.9s linear;
 }
 
 .timer-face strong {
@@ -510,6 +571,7 @@ input {
   line-height: 1.45;
 }
 
+/* ── Week grid ───────────────────────────────────── */
 .week-grid {
   grid-template-columns: repeat(7, minmax(150px, 1fr));
 }
@@ -547,6 +609,7 @@ input {
   font: inherit;
 }
 
+/* ── Library ─────────────────────────────────────── */
 .quick-add {
   display: flex;
   gap: 8px;
@@ -572,6 +635,7 @@ input {
   background: #fff;
   padding: 0 13px;
   font-weight: 800;
+  transition: background 0.15s, color 0.15s;
 }
 
 .filter-chip.active {
@@ -591,11 +655,27 @@ input {
 
 .library-card {
   display: grid;
-  gap: 12px;
+  gap: 10px;
+  transition: box-shadow 0.15s;
+}
+.library-card:hover { box-shadow: 0 4px 18px rgba(22, 24, 23, 0.08); }
+
+/* Top row: pill + optional delete button */
+.library-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
 }
 
-.library-card .muscle-pill {
-  justify-self: start;
+/* Smaller delete button in library card */
+.library-card-top .icon-button {
+  width: 32px;
+  min-height: 32px;
+}
+.library-card-top .icon-button svg {
+  width: 15px;
+  height: 15px;
 }
 
 .muscle-pill {
@@ -610,6 +690,7 @@ input {
   font-weight: 900;
 }
 
+/* ── Progress ────────────────────────────────────── */
 .progress-layout {
   grid-template-columns: minmax(0, 1.3fr) minmax(270px, 0.7fr);
 }
@@ -634,6 +715,7 @@ canvas {
   font-weight: 900;
 }
 
+/* ── Dialog ──────────────────────────────────────── */
 dialog {
   border: 0;
   padding: 0;
@@ -656,12 +738,53 @@ dialog::backdrop {
   width: 100%;
   min-height: 64px;
   text-align: left;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  transition: border-color 0.15s;
 }
 
 .dialog-option:hover {
   border-color: var(--green);
 }
 
+.dialog-option--active {
+  border-color: var(--green);
+  background: rgba(23, 111, 83, 0.04);
+}
+
+.dialog-option svg {
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: var(--muted);
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  flex-shrink: 0;
+}
+
+.in-session-badge {
+  font-size: 0.74rem;
+  font-weight: 900;
+  color: var(--green);
+  background: var(--mint);
+  padding: 3px 9px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+/* ── Empty state ─────────────────────────────────── */
+.empty-state {
+  color: var(--muted);
+  font-size: 0.92rem;
+  padding: 24px 0 8px;
+  text-align: center;
+}
+.empty-state strong { color: var(--ink); }
+
+/* ── Responsive ──────────────────────────────────── */
 @media (max-width: 1050px) {
   .shell {
     grid-template-columns: 1fr;

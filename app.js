@@ -224,8 +224,18 @@ function estimateTime() {
   return `${Math.max(25, sets * 5)} min`;
 }
 
+// ── SVG helpers ────────────────────────────────────────
+const SVG_PLUS = `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14" /></svg>`;
+const SVG_TRASH = `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6M10 11v6M14 11v6" /></svg>`;
+const SVG_X = `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12" /></svg>`;
+
 function renderSession() {
   els.exerciseList.innerHTML = "";
+
+  if (state.session.length === 0) {
+    els.exerciseList.innerHTML = `<p class="empty-state">Sin ejercicios. Pulsa <strong>+ Ejercicio</strong> para empezar.</p>`;
+    return;
+  }
 
   state.session.forEach((item, exerciseIndex) => {
     const exercise = getExercise(item.exerciseId);
@@ -235,12 +245,17 @@ function renderSession() {
       <div class="exercise-top">
         <div class="exercise-title">
           <strong>${exercise.name}</strong>
-          <span>${exercise.muscle} - objetivo ${exercise.hint}</span>
+          <span>${exercise.muscle} · ${exercise.hint}</span>
         </div>
-        <button class="ghost-button" data-action="add-set" data-exercise-index="${exerciseIndex}">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14" /></svg>
-          Serie
-        </button>
+        <div class="exercise-top-actions">
+          <button class="ghost-button" data-action="add-set" data-exercise-index="${exerciseIndex}">
+            ${SVG_PLUS}
+            Serie
+          </button>
+          <button class="icon-button danger-btn" data-action="remove-exercise" data-exercise-index="${exerciseIndex}" aria-label="Quitar ejercicio de la sesion" title="Quitar de la sesion">
+            ${SVG_X}
+          </button>
+        </div>
       </div>
       <table class="set-table">
         <thead>
@@ -258,11 +273,12 @@ function renderSession() {
     const tbody = card.querySelector("tbody");
     item.sets.forEach((set, setIndex) => {
       const row = document.createElement("tr");
+      row.className = set.done ? "set-done" : "";
       row.innerHTML = `
         <td><input type="checkbox" ${set.done ? "checked" : ""} data-action="toggle-set" data-exercise-index="${exerciseIndex}" data-set-index="${setIndex}" aria-label="Marcar serie hecha" /></td>
         <td><input type="number" min="0" inputmode="numeric" value="${set.reps}" data-field="reps" data-exercise-index="${exerciseIndex}" data-set-index="${setIndex}" aria-label="Repeticiones" /></td>
         <td><input type="number" min="0" step="0.5" inputmode="decimal" value="${set.weight}" data-field="weight" data-exercise-index="${exerciseIndex}" data-set-index="${setIndex}" aria-label="Peso" /></td>
-        <td><button class="row-button" data-action="remove-set" data-exercise-index="${exerciseIndex}" data-set-index="${setIndex}" aria-label="Eliminar serie">x</button></td>
+        <td><button class="row-button" data-action="remove-set" data-exercise-index="${exerciseIndex}" data-set-index="${setIndex}" aria-label="Eliminar serie">✕</button></td>
       `;
       tbody.append(row);
     });
@@ -298,35 +314,57 @@ function renderLibrary() {
     .join("");
 
   els.libraryGrid.innerHTML = "";
-  state.exercises
-    .filter((exercise) => activeFilter === "Todos" || exercise.muscle === activeFilter)
-    .forEach((exercise) => {
-      const card = document.createElement("article");
-      card.className = "library-card";
-      card.innerHTML = `
+
+  const filtered = state.exercises.filter(
+    (exercise) => activeFilter === "Todos" || exercise.muscle === activeFilter
+  );
+
+  if (filtered.length === 0) {
+    els.libraryGrid.innerHTML = `<p class="empty-state">No hay ejercicios en esta categoria.</p>`;
+    return;
+  }
+
+  filtered.forEach((exercise) => {
+    const isInSession = state.session.some((item) => item.exerciseId === exercise.id);
+    const isDefault = defaultExercises.some((d) => d.id === exercise.id);
+    const card = document.createElement("article");
+    card.className = "library-card";
+    card.innerHTML = `
+      <div class="library-card-top">
         <span class="muscle-pill">${exercise.muscle}</span>
-        <div>
-          <strong>${exercise.name}</strong>
-          <span>${exercise.hint}</span>
-        </div>
-        <button class="ghost-button" data-action="queue-exercise" data-exercise-id="${exercise.id}">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14" /></svg>
-          Mandar a hoy
-        </button>
-      `;
-      els.libraryGrid.append(card);
-    });
+        ${!isDefault ? `<button class="icon-button danger-btn" data-action="delete-exercise" data-exercise-id="${exercise.id}" aria-label="Eliminar ejercicio" title="Eliminar del catalogo">${SVG_TRASH}</button>` : ""}
+      </div>
+      <div>
+        <strong>${exercise.name}</strong>
+        <span>${exercise.hint}</span>
+      </div>
+      <button class="${isInSession ? "ghost-button active-session-btn" : "ghost-button"}" data-action="queue-exercise" data-exercise-id="${exercise.id}">
+        ${isInSession
+          ? `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 4 4L19 6"/></svg> En sesion`
+          : `${SVG_PLUS} Mandar a hoy`
+        }
+      </button>
+    `;
+    els.libraryGrid.append(card);
+  });
 }
 
 function renderDialog() {
   els.dialogExerciseList.innerHTML = "";
   state.exercises.forEach((exercise) => {
+    const isInSession = state.session.some((item) => item.exerciseId === exercise.id);
     const button = document.createElement("button");
-    button.className = "dialog-option";
+    button.className = `dialog-option ${isInSession ? "dialog-option--active" : ""}`;
     button.type = "button";
     button.dataset.action = "queue-exercise";
     button.dataset.exerciseId = exercise.id;
-    button.innerHTML = `<strong>${exercise.name}</strong><span>${exercise.muscle} - ${exercise.hint}</span>`;
+    button.innerHTML = `
+      <div>
+        <strong>${exercise.name}</strong>
+        <span>${exercise.muscle} · ${exercise.hint}</span>
+      </div>
+      ${isInSession ? `<span class="in-session-badge">En sesion</span>` : SVG_PLUS}
+    `;
     els.dialogExerciseList.append(button);
   });
 }
@@ -347,7 +385,7 @@ function renderProgress() {
           `,
         )
         .join("")
-    : `<p>Aun no hay records. Cierra un entreno para guardar tus marcas.</p>`;
+    : `<p class="empty-state">Aun no hay records. Cierra un entreno para guardar tus marcas.</p>`;
   drawChart();
 }
 
@@ -476,6 +514,23 @@ function queueExercise(exerciseId) {
   render();
 }
 
+// ── Remove exercise from session ───────────────────────
+function removeFromSession(exerciseIndex) {
+  state.session.splice(exerciseIndex, 1);
+  saveState();
+  render();
+}
+
+// ── Delete exercise from library ───────────────────────
+function deleteExercise(exerciseId) {
+  // Remove from library
+  state.exercises = state.exercises.filter((e) => e.id !== exerciseId);
+  // Also remove from session if present
+  state.session = state.session.filter((item) => item.exerciseId !== exerciseId);
+  saveState();
+  render();
+}
+
 function finishWorkout() {
   const stats = sessionStats();
   if (!stats.sets) {
@@ -525,7 +580,9 @@ function switchView(view) {
   els.viewTitle.textContent = titles[view];
   document.querySelectorAll(".view").forEach((section) => section.classList.remove("active"));
   document.querySelector(`#${view}View`).classList.add("active");
-  document.querySelectorAll(".nav-tab").forEach((button) => button.classList.toggle("active", button.dataset.view === view));
+  document.querySelectorAll(".nav-tab").forEach((button) =>
+    button.classList.toggle("active", button.dataset.view === view)
+  );
   if (view === "progress") requestAnimationFrame(drawChart);
 }
 
@@ -601,6 +658,16 @@ document.addEventListener("click", (event) => {
     item.sets.splice(Number(target.dataset.setIndex), 1);
     saveState();
     render();
+  }
+  // NEW: remove entire exercise from today's session
+  if (action === "remove-exercise") {
+    removeFromSession(Number(target.dataset.exerciseIndex));
+  }
+  // NEW: delete exercise from library (only custom ones)
+  if (action === "delete-exercise") {
+    if (confirm(`¿Eliminar "${getExercise(target.dataset.exerciseId).name}" del catalogo?`)) {
+      deleteExercise(target.dataset.exerciseId);
+    }
   }
 });
 
