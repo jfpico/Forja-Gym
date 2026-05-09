@@ -1,4 +1,4 @@
-const CACHE_NAME = "forja-gym-v1";
+const CACHE_NAME = "forja-gym-v4";
 const ASSETS = [
   "./",
   "./index.html",
