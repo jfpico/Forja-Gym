@@ -495,9 +495,12 @@ canvas { width: 100%; max-width: 100%; height: auto; display: block; }
   border: 1px solid var(--line); border-radius: 8px; background: #fff;
   padding: 14px; display: flex; align-items: center;
   justify-content: space-between; gap: 12px; margin-bottom: 8px;
+  transition: box-shadow .15s;
 }
+.record-card:hover { box-shadow: 0 4px 14px rgba(22,24,23,.08); }
 .record-card strong { display: block; }
 .record-card span { color: var(--muted); font-size: .86rem; }
+.record-right { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
 .record-card em { color: var(--green); font-style: normal; font-weight: 900; font-size: 1.1rem; }
 
 /* ── Empty state ─────────────────────────────────────── */

@@ -465,7 +465,10 @@ function renderProgress() {
     ?records.map(r=>`
       <article class="record-card">
         <div><strong>${r.exercise}</strong><span>${r.timed?`${r.secs}s`:`${r.reps} reps`}</span></div>
-        <em>${r.weight>0?r.weight+" kg":"Peso corp."}</em>
+        <div class="record-right">
+          <em>${r.weight>0?r.weight+" kg":"Peso corp."}</em>
+          <button class="icon-button danger-btn micro-btn" onclick="deleteRecord('${r.exercise}')" title="Borrar récord">${I.trash}</button>
+        </div>
       </article>`).join("")
     :`<p class="empty-state">Aún no hay récords. Cierra un entreno para guardar marcas.</p>`;
   drawChart();
@@ -606,7 +609,13 @@ function startTimer(){
   if(timer.interval){clearInterval(timer.interval);timer.interval=null;$("timerStart").textContent="Continuar";return;}
   $("timerStart").textContent="Pausar";
   timer.interval=setInterval(()=>{
-    if(--timer.remaining<=0){resetTimer();els.timerDisplay.textContent="¡Listo!";return;}
+    if(--timer.remaining<=0){
+      resetTimer();
+      els.timerDisplay.textContent="¡Listo!";
+      beepFinal();
+      return;
+    }
+    if(timer.remaining<=5) beepCountdown();
     updateTimerDisplay();
   },1000);
 }
