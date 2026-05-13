@@ -1,9 +1,9 @@
 // ─────────────────────────────────────────────────────────
-//  Forja Gym · app.js v5
+//  Force Gym · app.js v5
 //  ~90 ejercicios · preview de imagen en picker
 // ─────────────────────────────────────────────────────────
 
-const STORAGE_KEY = "forja-gym-state-v5";
+const STORAGE_KEY = "force-gym-state-v5";
 const IMG_PATH    = "./gifs/";  // carpeta con las imágenes descargadas
 
 // ── Catálogo completo (~90 ejercicios) ───────────────────
@@ -202,6 +202,33 @@ function imgSrc(ex) {
   return IMG_PATH + ex.img;
 }
 
+// Open image modal
+function openImgModal(src, name) {
+  const existing = document.getElementById("imgModal");
+  if (existing) existing.remove();
+  const modal = document.createElement("div");
+  modal.id = "imgModal";
+  modal.style.cssText = `
+    position:fixed; inset:0; z-index:9999;
+    background:rgba(0,0,0,0.85);
+    display:grid; place-items:center;
+    cursor:zoom-out; padding:24px;
+  `;
+  modal.innerHTML = `
+    <div style="position:relative; max-width:560px; width:100%;">
+      <img src="${src}" alt="${name}"
+        style="width:100%; border-radius:16px; display:block; box-shadow:0 24px 80px rgba(0,0,0,0.5);"/>
+      <p style="text-align:center; color:#fff; font-weight:700; font-size:1rem; margin-top:14px; opacity:.9;">${name}</p>
+      <button onclick="document.getElementById('imgModal').remove()"
+        style="position:absolute; top:-12px; right:-12px; width:32px; height:32px;
+               background:#fff; border:none; border-radius:50%; font-size:1.1rem;
+               cursor:pointer; display:grid; place-items:center; box-shadow:0 4px 12px rgba(0,0,0,0.3);">✕</button>
+    </div>
+  `;
+  modal.addEventListener("click", e => { if (e.target === modal) modal.remove(); });
+  document.body.appendChild(modal);
+}
+
 const I = {
   plus:  `<svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>`,
   trash: `<svg viewBox="0 0 24 24"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6M10 11v6M14 11v6"/></svg>`,
@@ -281,7 +308,7 @@ function renderSession() {
     card.innerHTML=`
       <div class="exercise-top">
         <div class="exercise-title-wrap">
-          ${src?`<img class="ex-thumb" src="${src}" alt="${ex.name}" loading="lazy" onerror="this.style.display='none'"/>`:""}
+          ${src?`<img class="ex-thumb" src="${src}" alt="${ex.name}" loading="lazy" onerror="this.style.display='none'" onclick="openImgModal('${src}','${ex.name}')" style="cursor:zoom-in"/>`:""}
           <div class="exercise-title">
             ${timed?`<span class="timed-badge">${I.clock} Tiempo</span>`:""}
             <strong>${ex.name}</strong>
@@ -379,7 +406,7 @@ function openPlanPicker(di) {
       btn.innerHTML=`
         <div class="pick-card-img">
           ${src
-            ?`<img src="${src}" alt="${ex.name}" loading="lazy" onerror="this.parentElement.innerHTML='${I.img}'">`
+            ?`<img src="${src}" alt="${ex.name}" loading="lazy" onerror="this.parentElement.innerHTML='${I.img}'" onclick="event.stopPropagation();openImgModal('${src}','${ex.name}')" style="cursor:zoom-in">`
             :`<div class="pick-card-noimg">${I.img}</div>`}
         </div>
         <div class="pick-card-body">
@@ -422,7 +449,7 @@ function renderLibrary() {
         ${isTimed(ex)?`<span class="timed-badge small">${I.clock} Tiempo</span>`:""}
         ${!isDef?`<button class="icon-button danger-btn micro-btn" data-action="delete-exercise" data-id="${ex.id}" title="Eliminar">${I.trash}</button>`:""}
       </div>
-      ${src?`<img class="lib-img" src="${src}" alt="${ex.name}" loading="lazy" onerror="this.style.display='none'"/>`:""}
+      ${src?`<img class="lib-img" src="${src}" alt="${ex.name}" loading="lazy" onerror="this.style.display='none'" onclick="openImgModal('${src}','${ex.name}')" style="cursor:zoom-in"/>`:""}
       <div><strong>${ex.name}</strong><span>${ex.hint}</span></div>
       <button class="${inToday?"ghost-button active-session-btn":"ghost-button"}" data-action="queue-exercise" data-id="${ex.id}">
         ${inToday?`${I.check} En sesión`:`${I.plus} Mandar a hoy`}
@@ -607,7 +634,7 @@ document.addEventListener("click",e=>{
   }
   if(btn.id==="exportBtn"){
     const blob=new Blob([JSON.stringify(state,null,2)],{type:"application/json"});
-    const a=Object.assign(document.createElement("a"),{href:URL.createObjectURL(blob),download:`forja-gym-${dateKey()}.json`});
+    const a=Object.assign(document.createElement("a"),{href:URL.createObjectURL(blob),download:`force-gym-${dateKey()}.json`});
     a.click();URL.revokeObjectURL(a.href);return;
   }
   const a=btn.dataset.action;

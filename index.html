@@ -4,8 +4,8 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#202626" />
-    <meta name="description" content="App personal para controlar rutinas, series, ejercicios y progreso del gimnasio." />
-    <title>Forja Gym</title>
+    <meta name="description" content="Tu app personal de gimnasio. Rutinas, series, progreso y más." />
+    <title>Force Gym</title>
     <link rel="manifest" href="manifest.webmanifest" />
     <link rel="icon" href="icons/icon.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="icons/icon-180.png" />
@@ -22,8 +22,8 @@
             </svg>
           </div>
           <div>
-            <p>Forja</p>
-            <span>control de gym</span>
+            <p>Force</p>
+            <span>tu gym, tu progreso</span>
           </div>
         </div>
 
@@ -243,6 +243,19 @@
       </div>
     </dialog>
 
-    <script src="app.js"></script>
+  
+  <!-- Lightbox para imágenes de ejercicios -->
+  <div id="lightbox" class="lightbox" aria-modal="true" role="dialog" aria-label="Imagen del ejercicio">
+    <div class="lightbox-backdrop" onclick="closeLightbox()"></div>
+    <div class="lightbox-content">
+      <button class="lightbox-close" onclick="closeLightbox()" aria-label="Cerrar">
+        <svg viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg>
+      </button>
+      <img id="lightboxImg" src="" alt=""/>
+      <p id="lightboxName"></p>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
   </body>
 </html>
