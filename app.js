@@ -593,6 +593,50 @@ function finishWorkout(){
   saveState();render();
 }
 
+
+// ── Audio beeps ───────────────────────────────────────────
+let _audioCtx = null;
+function getAudioCtx() {
+  if (!_audioCtx) _audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  if (_audioCtx.state === "suspended") _audioCtx.resume();
+  return _audioCtx;
+}
+
+function beep(freq, duration, type, vol) {
+  try {
+    const ctx  = getAudioCtx();
+    const osc  = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.type = type || "sine";
+    osc.frequency.setValueAtTime(freq || 880, ctx.currentTime);
+    gain.gain.setValueAtTime(vol || 0.35, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + (duration || 0.12));
+    osc.start(ctx.currentTime);
+    osc.stop(ctx.currentTime + (duration || 0.12) + 0.05);
+  } catch(e) { console.warn("beep error", e); }
+}
+
+function beepCountdown() {
+  beep(880, 0.1, "sine", 0.3);
+}
+
+function beepFinal() {
+  beep(660, 0.15, "sine", 0.4);
+  setTimeout(() => beep(880,  0.15, "sine", 0.4), 200);
+  setTimeout(() => beep(1100, 0.4,  "sine", 0.5), 400);
+}
+
+// ── Delete record ─────────────────────────────────────────
+function deleteRecord(exerciseName) {
+  state.logs.forEach(log => {
+    log.records = (log.records || []).filter(r => r.exercise !== exerciseName);
+  });
+  saveState();
+  renderProgress();
+}
+
 // ── Timer ─────────────────────────────────────────────────
 function resetTimer(){
   clearInterval(timer.interval);timer.interval=null;
@@ -609,10 +653,20 @@ function startTimer(){
   if(timer.interval){clearInterval(timer.interval);timer.interval=null;$("timerStart").textContent="Continuar";return;}
   $("timerStart").textContent="Pausar";
   timer.interval=setInterval(()=>{
-    if(--timer.remaining<=0){
-      resetTimer();
+    timer.remaining--;
+    if(timer.remaining<=0){
+      clearInterval(timer.interval);
+      timer.interval=null;
+      timer.remaining=0;
+      els.timerRing.style.strokeDashoffset="364";
       els.timerDisplay.textContent="¡Listo!";
+      $("timerStart").textContent="Iniciar";
       beepFinal();
+      // Reset after 2 seconds so it's ready again
+      setTimeout(()=>{
+        timer.remaining=timer.total;
+        updateTimerDisplay();
+      },2000);
       return;
     }
     if(timer.remaining<=5) beepCountdown();
