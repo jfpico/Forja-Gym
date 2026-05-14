@@ -595,23 +595,36 @@ function finishWorkout(){
 
 
 // ── Audio beeps ───────────────────────────────────────────
+// iOS Safari: AudioContext must be created AND resumed
+// synchronously inside a user gesture (tap/click)
 let _audioCtx = null;
-function getAudioCtx() {
-  if (!_audioCtx) _audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-  if (_audioCtx.state === "suspended") _audioCtx.resume();
-  return _audioCtx;
+let _audioReady = false;
+
+async function unlockAudio() {
+  try {
+    if (!_audioCtx) {
+      _audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    }
+    if (_audioCtx.state === "suspended") {
+      await _audioCtx.resume();
+    }
+    _audioReady = (_audioCtx.state === "running");
+  } catch(e) {
+    console.warn("Audio unlock failed:", e);
+  }
 }
 
 function beep(freq, duration, type, vol) {
   try {
-    const ctx  = getAudioCtx();
+    if (!_audioCtx || !_audioReady) return;
+    const ctx  = _audioCtx;
     const osc  = ctx.createOscillator();
     const gain = ctx.createGain();
     osc.connect(gain);
     gain.connect(ctx.destination);
     osc.type = type || "sine";
     osc.frequency.setValueAtTime(freq || 880, ctx.currentTime);
-    gain.gain.setValueAtTime(vol || 0.35, ctx.currentTime);
+    gain.gain.setValueAtTime(vol || 0.4, ctx.currentTime);
     gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + (duration || 0.12));
     osc.start(ctx.currentTime);
     osc.stop(ctx.currentTime + (duration || 0.12) + 0.05);
@@ -649,7 +662,8 @@ function updateTimerDisplay(){
   els.timerDisplay.textContent=`${m}:${s}`;
   els.timerRing.style.strokeDashoffset=String(364-364*(timer.remaining/timer.total));
 }
-function startTimer(){
+async function startTimer(){
+  await unlockAudio(); // must be called inside user gesture for iOS Safari
   if(timer.interval){clearInterval(timer.interval);timer.interval=null;$("timerStart").textContent="Continuar";return;}
   $("timerStart").textContent="Pausar";
   timer.interval=setInterval(()=>{
