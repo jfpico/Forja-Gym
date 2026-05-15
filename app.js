@@ -594,51 +594,79 @@ function finishWorkout(){
 }
 
 
-// ── Audio beeps ───────────────────────────────────────────
-// iOS Safari: AudioContext must be created AND resumed
-// synchronously inside a user gesture (tap/click)
-let _audioCtx = null;
+// ── Audio + Vibración ────────────────────────────────────
+// Estrategia dual:
+//   1. Web Audio API (Chrome, Firefox, Safari navegador)
+//   2. <audio> con WAV (iOS Safari PWA)
+//   3. Vibración como fallback adicional en móvil
+
+let _audioCtx   = null;
 let _audioReady = false;
 
+// Precargar audios HTML5 para iOS
+const _sndBeep  = new Audio("./sounds/beep.wav");
+const _sndFinal = new Audio("./sounds/beep-final.wav");
+_sndBeep.load();
+_sndFinal.load();
+
 async function unlockAudio() {
+  // Debe llamarse dentro de un gesto del usuario
   try {
-    if (!_audioCtx) {
-      _audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    }
-    if (_audioCtx.state === "suspended") {
-      await _audioCtx.resume();
-    }
+    // Desbloquear <audio> en iOS tocando con volumen 0
+    _sndBeep.volume  = 0;
+    _sndFinal.volume = 0;
+    await _sndBeep.play().catch(()=>{});
+    _sndBeep.pause();
+    _sndBeep.currentTime  = 0;
+    _sndFinal.currentTime = 0;
+    _sndBeep.volume  = 1;
+    _sndFinal.volume = 1;
+
+    // Desbloquear Web Audio
+    if (!_audioCtx) _audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    if (_audioCtx.state === "suspended") await _audioCtx.resume();
     _audioReady = (_audioCtx.state === "running");
-  } catch(e) {
-    console.warn("Audio unlock failed:", e);
-  }
+  } catch(e) { console.warn("unlockAudio:", e); }
+}
+
+function vibrate(pattern) {
+  try { navigator.vibrate && navigator.vibrate(pattern); } catch(e) {}
 }
 
 function beep(freq, duration, type, vol) {
+  // Intenta Web Audio primero
+  if (_audioCtx && _audioReady) {
+    try {
+      const osc  = _audioCtx.createOscillator();
+      const gain = _audioCtx.createGain();
+      osc.connect(gain); gain.connect(_audioCtx.destination);
+      osc.type = type || "sine";
+      osc.frequency.setValueAtTime(freq || 880, _audioCtx.currentTime);
+      gain.gain.setValueAtTime(vol || 0.4, _audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, _audioCtx.currentTime + (duration||0.12));
+      osc.start(_audioCtx.currentTime);
+      osc.stop(_audioCtx.currentTime + (duration||0.12) + 0.05);
+      return;
+    } catch(e) {}
+  }
+  // Fallback: <audio> HTML5 (funciona en iOS Safari PWA)
   try {
-    if (!_audioCtx || !_audioReady) return;
-    const ctx  = _audioCtx;
-    const osc  = ctx.createOscillator();
-    const gain = ctx.createGain();
-    osc.connect(gain);
-    gain.connect(ctx.destination);
-    osc.type = type || "sine";
-    osc.frequency.setValueAtTime(freq || 880, ctx.currentTime);
-    gain.gain.setValueAtTime(vol || 0.4, ctx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + (duration || 0.12));
-    osc.start(ctx.currentTime);
-    osc.stop(ctx.currentTime + (duration || 0.12) + 0.05);
-  } catch(e) { console.warn("beep error", e); }
+    const s = _sndBeep.cloneNode();
+    s.play().catch(()=>{});
+  } catch(e) {}
 }
 
 function beepCountdown() {
   beep(880, 0.1, "sine", 0.3);
+  try { navigator.vibrate && navigator.vibrate(60); } catch(e) {}
 }
 
 function beepFinal() {
   beep(660, 0.15, "sine", 0.4);
   setTimeout(() => beep(880,  0.15, "sine", 0.4), 200);
   setTimeout(() => beep(1100, 0.4,  "sine", 0.5), 400);
+  // Vibración para iOS: patrón largo-corto-largo
+  try { navigator.vibrate && navigator.vibrate([150, 80, 150, 80, 400]); } catch(e) {}
 }
 
 // ── Delete record ─────────────────────────────────────────
