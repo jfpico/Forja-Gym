@@ -6,6 +6,8 @@ App estatica para controlar rutinas de gimnasio, ejercicios, series, volumen, re
 
 - Registro de entrenos, series, repeticiones y peso.
 - Biblioteca de ejercicios con ejercicios personalizados.
+- Fotos por ejercicio, guardadas en el navegador.
+- Rutinas semanales editables: pon/quita ejercicios por dia y cargalos como entreno de hoy.
 - Compartir rutina semanal y ejercicios.
 - Seguimiento de peso y azucar en sangre.
 - Exportacion JSON/CSV para copia de seguridad o uso con Atajos/Numbers.

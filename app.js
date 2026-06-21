@@ -98,26 +98,58 @@ function loadState() {
   if (saved) {
     try {
       const parsed = JSON.parse(saved);
-      return {
+      return normalizeState({
         exercises: parsed.exercises || defaultExercises,
         week: parsed.week || defaultWeek,
         session: parsed.session || defaultSession,
         logs: parsed.logs || [],
         health: parsed.health || [],
         energy: parsed.energy || 4,
-      };
+      });
     } catch {
       localStorage.removeItem(STORAGE_KEY);
     }
   }
-  return {
+  return normalizeState({
     exercises: structuredClone(defaultExercises),
     week: structuredClone(defaultWeek),
     session: structuredClone(defaultSession),
     logs: seedLogs(),
     health: seedHealth(),
     energy: 4,
+  });
+}
+
+function normalizeState(nextState) {
+  const savedById = new Map((nextState.exercises || []).map((exercise) => [exercise.id, exercise]));
+  const exercises = [
+    ...defaultExercises.map((exercise) => ({ ...exercise, ...(savedById.get(exercise.id) || {}) })),
+    ...(nextState.exercises || [])
+      .filter((exercise) => !defaultExercises.some((item) => item.id === exercise.id))
+      .map((exercise) => ({ ...exercise, custom: true })),
+  ];
+
+  return {
+    ...nextState,
+    exercises,
+    week: (nextState.week || defaultWeek).map((day, index) => ({
+      ...defaultWeek[index],
+      ...day,
+      exercises: day.exercises || defaultRoutineForFocus(day.focus || defaultWeek[index].focus),
+    })),
   };
+}
+
+function defaultRoutineForFocus(focus) {
+  const routines = {
+    Empuje: ["press-banca", "press-militar", "fondos"],
+    Tiron: ["dominadas", "remo-barra", "peso-muerto"],
+    Pierna: ["sentadilla", "zancadas"],
+    "Full body": ["sentadilla", "press-banca", "remo-barra"],
+    Cardio: [],
+    Descanso: [],
+  };
+  return [...(routines[focus] || [])];
 }
 
 function seedHealth() {
@@ -260,6 +292,7 @@ function renderSession() {
     card.className = "exercise-card";
     card.innerHTML = `
       <div class="exercise-top">
+        ${exerciseMedia(exercise, "exercise-photo")}
         <div class="exercise-title">
           <strong>${exercise.name}</strong>
           <span>${exercise.muscle} - objetivo ${exercise.hint}</span>
@@ -313,6 +346,7 @@ function renderWeek() {
   const options = ["Empuje", "Tiron", "Pierna", "Full body", "Cardio", "Descanso"];
 
   state.week.forEach((day, index) => {
+    const dayExercises = (day.exercises || []).map((exerciseId) => getExercise(exerciseId)).filter(Boolean);
     const card = document.createElement("article");
     card.className = `week-card ${index === todayIndex ? "today" : ""}`;
     card.innerHTML = `
@@ -322,6 +356,32 @@ function renderWeek() {
         ${options.map((option) => `<option ${option === day.focus ? "selected" : ""}>${option}</option>`).join("")}
       </select>
       <textarea data-week-field="notes" data-week-index="${index}" aria-label="Notas para ${day.day}">${day.notes}</textarea>
+      <div class="routine-list">
+        ${
+          dayExercises.length
+            ? dayExercises
+                .map(
+                  (exercise) => `
+                    <div class="routine-pill">
+                      <span>${exercise.name}</span>
+                      <button class="row-button" data-action="remove-routine-exercise" data-week-index="${index}" data-exercise-id="${exercise.id}" aria-label="Quitar ${exercise.name}">x</button>
+                    </div>
+                  `,
+                )
+                .join("")
+            : `<p class="empty-copy">Sin ejercicios asignados.</p>`
+        }
+      </div>
+      <div class="routine-add">
+        <select data-routine-picker="${index}" aria-label="Ejercicio para ${day.day}">
+          ${state.exercises.map((exercise) => `<option value="${exercise.id}">${exercise.name}</option>`).join("")}
+        </select>
+        <button class="ghost-button" data-action="add-routine-exercise" data-week-index="${index}">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14" /></svg>
+          Poner
+        </button>
+      </div>
+      <button class="primary-button load-day-button" data-action="load-routine-day" data-week-index="${index}">Cargar hoy</button>
     `;
     els.weekGrid.append(card);
   });
@@ -340,6 +400,7 @@ function renderLibrary() {
       const card = document.createElement("article");
       card.className = "library-card";
       card.innerHTML = `
+        ${exerciseMedia(exercise, "library-photo")}
         <span class="muscle-pill">${exercise.muscle}</span>
         <div>
           <strong>${exercise.name}</strong>
@@ -354,6 +415,12 @@ function renderLibrary() {
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7M16 6l-4-4-4 4M12 2v13" /></svg>
             Compartir
           </button>
+          <label class="ghost-button file-button">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 16l4-4 4 4 4-4 4 4M4 20h16M5 8h14M8 4h8" /></svg>
+            Foto
+            <input type="file" accept="image/*" data-action="set-exercise-photo" data-exercise-id="${exercise.id}" />
+          </label>
+          ${exercise.image ? `<button class="icon-button" data-action="clear-exercise-photo" data-exercise-id="${exercise.id}" aria-label="Quitar foto"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12" /></svg></button>` : ""}
           ${
             exercise.custom
               ? `<button class="icon-button danger-button" data-action="delete-library-exercise" data-exercise-id="${exercise.id}" aria-label="Borrar ejercicio"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14" /></svg></button>`
@@ -376,6 +443,43 @@ function renderDialog() {
     button.innerHTML = `<strong>${exercise.name}</strong><span>${exercise.muscle} - ${exercise.hint}</span>`;
     els.dialogExerciseList.append(button);
   });
+}
+
+function exerciseMedia(exercise, className) {
+  if (exercise.image) {
+    return `<img class="${className}" src="${exercise.image}" alt="${exercise.name}" loading="lazy" />`;
+  }
+  return `
+    <div class="${className} exercise-visual" aria-hidden="true">
+      <span>${exercise.name.slice(0, 2).toUpperCase()}</span>
+      <small>${exercise.muscle}</small>
+    </div>
+  `;
+}
+
+function setExercisePhoto(exerciseId, file) {
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    const image = new Image();
+    image.onload = () => {
+      const canvas = document.createElement("canvas");
+      const size = 520;
+      canvas.width = size;
+      canvas.height = size;
+      const ctx = canvas.getContext("2d");
+      const scale = Math.max(size / image.width, size / image.height);
+      const width = image.width * scale;
+      const height = image.height * scale;
+      ctx.drawImage(image, (size - width) / 2, (size - height) / 2, width, height);
+      const exercise = getExercise(exerciseId);
+      exercise.image = canvas.toDataURL("image/jpeg", 0.78);
+      saveState();
+      render();
+    };
+    image.src = reader.result;
+  };
+  reader.readAsDataURL(file);
 }
 
 function renderProgress() {
@@ -763,6 +867,36 @@ document.addEventListener("click", (event) => {
     saveState();
     render();
   }
+  if (action === "add-routine-exercise") {
+    const weekIndex = Number(target.dataset.weekIndex);
+    const picker = document.querySelector(`[data-routine-picker="${weekIndex}"]`);
+    state.week[weekIndex].exercises ||= [];
+    if (picker?.value && !state.week[weekIndex].exercises.includes(picker.value)) {
+      state.week[weekIndex].exercises.push(picker.value);
+      saveState();
+      render();
+    }
+  }
+  if (action === "remove-routine-exercise") {
+    const weekIndex = Number(target.dataset.weekIndex);
+    state.week[weekIndex].exercises = (state.week[weekIndex].exercises || []).filter((id) => id !== target.dataset.exerciseId);
+    saveState();
+    render();
+  }
+  if (action === "load-routine-day") {
+    const day = state.week[Number(target.dataset.weekIndex)];
+    state.session = (day.exercises || []).map((exerciseId) => ({
+      exerciseId,
+      sets: [
+        { reps: 10, weight: 0, done: false },
+        { reps: 10, weight: 0, done: false },
+        { reps: 10, weight: 0, done: false },
+      ],
+    }));
+    saveState();
+    switchView("today");
+    render();
+  }
   if (action === "remove-set") {
     const item = state.session[Number(target.dataset.exerciseIndex)];
     item.sets.splice(Number(target.dataset.setIndex), 1);
@@ -774,6 +908,15 @@ document.addEventListener("click", (event) => {
     if (!exercise.custom) return;
     state.exercises = state.exercises.filter((item) => item.id !== exercise.id);
     state.session = state.session.filter((item) => item.exerciseId !== exercise.id);
+    state.week = state.week.map((day) => ({
+      ...day,
+      exercises: (day.exercises || []).filter((id) => id !== exercise.id),
+    }));
+    saveState();
+    render();
+  }
+  if (action === "clear-exercise-photo") {
+    getExercise(target.dataset.exerciseId).image = "";
     saveState();
     render();
   }
@@ -803,6 +946,11 @@ document.addEventListener("input", (event) => {
 
 document.addEventListener("change", (event) => {
   const target = event.target;
+  if (target.dataset.action === "set-exercise-photo") {
+    setExercisePhoto(target.dataset.exerciseId, target.files?.[0]);
+    target.value = "";
+  }
+
   if (target.dataset.action === "toggle-set") {
     const item = state.session[Number(target.dataset.exerciseIndex)];
     item.sets[Number(target.dataset.setIndex)].done = target.checked;

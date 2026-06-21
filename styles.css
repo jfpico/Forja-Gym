@@ -385,6 +385,49 @@ h3 {
   background: #f3f5f0;
 }
 
+.exercise-photo,
+.library-photo {
+  flex: 0 0 auto;
+  object-fit: cover;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #e9eee8;
+}
+
+.exercise-photo {
+  width: 74px;
+  height: 74px;
+}
+
+.library-photo {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+}
+
+.exercise-visual {
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 4px;
+  background:
+    linear-gradient(135deg, rgba(23, 111, 83, 0.18), transparent),
+    linear-gradient(315deg, rgba(244, 93, 72, 0.16), transparent),
+    #eef1eb;
+}
+
+.exercise-visual span {
+  color: var(--coal);
+  font-size: 1.45rem;
+  font-weight: 900;
+}
+
+.exercise-visual small {
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
 .exercise-title {
   min-width: 0;
 }
@@ -524,7 +567,7 @@ input {
 }
 
 .week-grid {
-  grid-template-columns: repeat(7, minmax(150px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
 }
 
 .week-card,
@@ -558,6 +601,47 @@ input {
   border-radius: 6px;
   padding: 10px;
   font: inherit;
+}
+
+.routine-list {
+  display: grid;
+  gap: 8px;
+  margin: 12px 0;
+}
+
+.routine-pill {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-height: 40px;
+  padding: 6px 6px 6px 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #f7f8f4;
+}
+
+.routine-pill span {
+  color: var(--ink);
+  font-size: 0.88rem;
+}
+
+.routine-add {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px;
+  align-items: end;
+}
+
+.load-day-button {
+  width: 100%;
+  margin-top: 10px;
+}
+
+.empty-copy {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.9rem;
 }
 
 .quick-add {
@@ -613,6 +697,18 @@ input {
 
 .library-card .card-actions .ghost-button {
   flex: 1 1 110px;
+}
+
+.file-button {
+  position: relative;
+  overflow: hidden;
+}
+
+.file-button input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
 }
 
 .library-card .muscle-pill {
