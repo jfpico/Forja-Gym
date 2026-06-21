@@ -1,6 +1,6 @@
 {
-  "name": "Force Gym",
-  "short_name": "Force",
+  "name": "Forja Gym",
+  "short_name": "Forja",
   "description": "Control de rutinas, ejercicios, series y progreso del gimnasio.",
   "start_url": "./",
   "scope": "./",

@@ -1,6 +1,18 @@
 # Forja Gym
 
-App estatica para controlar rutinas de gimnasio, ejercicios, series, volumen, records, plan semanal y progreso.
+App estatica para controlar rutinas de gimnasio, ejercicios, series, volumen, records, plan semanal, progreso, peso corporal y glucosa.
+
+## Funciones
+
+- Registro de entrenos, series, repeticiones y peso.
+- Biblioteca de ejercicios con ejercicios personalizados.
+- Compartir rutina semanal y ejercicios.
+- Seguimiento de peso y azucar en sangre.
+- Exportacion JSON/CSV para copia de seguridad o uso con Atajos/Numbers.
+
+## Apple Fitness / Salud
+
+Una PWA no puede sincronizar directamente con Apple Fitness o Salud porque Apple reserva HealthKit para apps nativas. La app exporta CSV para que puedas mover datos mediante Atajos, Numbers o una futura app nativa.
 
 ## Ejecutar local
 

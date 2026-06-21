@@ -4,8 +4,8 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#202626" />
-    <meta name="description" content="Tu app personal de gimnasio. Rutinas, series, progreso y más." />
-    <title>Force Gym</title>
+    <meta name="description" content="App personal para controlar rutinas, series, ejercicios y progreso del gimnasio." />
+    <title>Forja Gym</title>
     <link rel="manifest" href="manifest.webmanifest" />
     <link rel="icon" href="icons/icon.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="icons/icon-180.png" />
@@ -22,8 +22,8 @@
             </svg>
           </div>
           <div>
-            <p>Force Gym</p>
-            <span>tu gym, tu progreso</span>
+            <p>Forja</p>
+            <span>control de gym</span>
           </div>
         </div>
 
@@ -43,6 +43,10 @@
           <button class="nav-tab" data-view="progress">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19V5M4 19h16M8 16v-5M13 16V8M18 16v-9" /></svg>
             Progreso
+          </button>
+          <button class="nav-tab" data-view="health">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8Z" /></svg>
+            Salud
           </button>
         </nav>
 
@@ -122,7 +126,10 @@
                   <span class="eyebrow">agenda</span>
                   <h3>Rutina activa</h3>
                 </div>
-                <span class="eyebrow">según plan</span>
+                <button class="ghost-button" id="addExerciseBtn">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14" /></svg>
+                  Ejercicio
+                </button>
               </div>
               <div id="exerciseList" class="exercise-list"></div>
             </section>
@@ -167,10 +174,16 @@
                 <span class="eyebrow">semana</span>
                 <h3>Plan de entreno</h3>
               </div>
-              <button class="ghost-button" id="resetWeekBtn">
-                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7M3 4v6h6" /></svg>
-                Restaurar
-              </button>
+              <div class="action-row">
+                <button class="ghost-button" id="resetWeekBtn">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7M3 4v6h6" /></svg>
+                  Restaurar
+                </button>
+                <button class="primary-button" id="shareWeekBtn">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7M16 6l-4-4-4 4M12 2v13" /></svg>
+                  Compartir
+                </button>
+              </div>
             </div>
             <div class="week-grid" id="weekGrid"></div>
           </div>
@@ -193,8 +206,7 @@
                   <option>Brazo</option>
                   <option>Core</option>
                 </select>
-                <label><input id="newExerciseTimed" type="checkbox" /> Tiempo</label>
-                <button class="primary-button" type="submit">Añadir</button>
+                <button class="primary-button" type="submit">Anadir</button>
               </form>
             </div>
             <div class="filter-row" id="muscleFilters"></div>
@@ -224,38 +236,89 @@
             </section>
           </div>
         </section>
+
+        <section class="view" id="healthView">
+          <div class="content-grid progress-layout">
+            <section class="panel">
+              <div class="panel-head">
+                <div>
+                  <span class="eyebrow">diario</span>
+                  <h3>Peso y azucar</h3>
+                </div>
+                <button class="ghost-button" id="exportHealthBtn">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5M5 21h14" /></svg>
+                  CSV
+                </button>
+              </div>
+              <form class="health-form" id="healthForm">
+                <label>
+                  Fecha
+                  <input id="healthDate" type="date" required />
+                </label>
+                <label>
+                  Peso kg
+                  <input id="healthWeight" type="number" min="0" step="0.1" inputmode="decimal" placeholder="82.5" />
+                </label>
+                <label>
+                  Azucar mg/dL
+                  <input id="healthGlucose" type="number" min="0" step="1" inputmode="numeric" placeholder="110" />
+                </label>
+                <label>
+                  Momento
+                  <select id="healthMoment">
+                    <option>Ayunas</option>
+                    <option>Antes de entrenar</option>
+                    <option>Despues de entrenar</option>
+                    <option>Antes de comer</option>
+                    <option>Despues de comer</option>
+                    <option>Noche</option>
+                  </select>
+                </label>
+                <label class="health-notes">
+                  Nota
+                  <input id="healthNote" type="text" placeholder="Sensaciones, comida, medicacion..." />
+                </label>
+                <button class="primary-button" type="submit">Guardar</button>
+              </form>
+              <div class="health-summary" id="healthSummary"></div>
+              <div class="health-list" id="healthList"></div>
+            </section>
+            <section class="panel">
+              <div class="panel-head">
+                <div>
+                  <span class="eyebrow">iphone</span>
+                  <h3>Apple Fitness</h3>
+                </div>
+              </div>
+              <div class="sync-card">
+                <strong>Conexion directa no disponible desde web</strong>
+                <p>Apple solo deja sincronizar con Fitness/Salud desde apps nativas con HealthKit. Esta PWA exporta tus entrenos y salud en CSV/JSON para Atajos, Numbers o una app nativa futura.</p>
+                <button class="ghost-button" id="exportWorkoutCsvBtn">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5M5 21h14" /></svg>
+                  Exportar entrenos CSV
+                </button>
+              </div>
+            </section>
+          </div>
+        </section>
       </section>
     </main>
 
-    <!-- Dialog: añadir ejercicios al plan de un día -->
-    <dialog id="planDialog">
-      <div class="plan-dialog-card">
-        <div class="plan-dialog-header">
+    <dialog id="exerciseDialog">
+      <form method="dialog" class="dialog-card">
+        <div class="panel-head">
           <div>
-            <span class="eyebrow">plan semanal</span>
-            <h3 id="planDayTitle">Lunes</h3>
+            <span class="eyebrow">rutina activa</span>
+            <h3>Anadir ejercicio</h3>
           </div>
-          <button class="icon-button" id="planDialogClose" aria-label="Cerrar">
+          <button class="icon-button" value="cancel" aria-label="Cerrar">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12" /></svg>
           </button>
         </div>
-        <div class="plan-dialog-body" id="planPickList"></div>
-      </div>
+        <div id="dialogExerciseList" class="dialog-list"></div>
+      </form>
     </dialog>
 
-  
-  <!-- Lightbox para imágenes de ejercicios -->
-  <div id="lightbox" class="lightbox" aria-modal="true" role="dialog" aria-label="Imagen del ejercicio">
-    <div class="lightbox-backdrop" onclick="closeLightbox()"></div>
-    <div class="lightbox-content">
-      <button class="lightbox-close" onclick="closeLightbox()" aria-label="Cerrar">
-        <svg viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg>
-      </button>
-      <img id="lightboxImg" src="" alt=""/>
-      <p id="lightboxName"></p>
-    </div>
-  </div>
-
-  <script src="app.js"></script>
+    <script src="app.js"></script>
   </body>
 </html>
